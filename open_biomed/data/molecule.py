@@ -85,11 +85,14 @@ class Molecule:
     def from_sdf_file(cls, sdf_file: str) -> Self:
         # initialize a molecule with a .sdf file
         loader = Chem.SDMolSupplier(sdf_file)
+        molecule = None
         for mol in loader:
             if mol is not None:
                 molecule = Molecule.from_rdmol(mol)
                 conformer = mol.GetConformer()
                 molecule.conformer = np.array(conformer.GetPositions())
+        if molecule is None:
+            raise MoleculeConstructError(f"No molecule could be parsed from SDF file: {sdf_file}")
         molecule.name = sdf_file.split("/")[-1].strip(".sdf")
         return molecule
 
